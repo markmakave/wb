@@ -97,7 +97,7 @@ func connectDB() *sql.DB {
 	if err != nil {
 		// error connecting to database
 		// usually means that the database is not running of credentials are wrong
-		fmt.Println("[ POSTGRES ] Error occured:", err)
+		fmt.Println("[ POSTGRES ] Error occurred:", err)
 		os.Exit(1)
 	}
 
@@ -105,7 +105,7 @@ func connectDB() *sql.DB {
 	if err != nil {
 		// error pinging database
 		// usually means that the database is not responding
-		fmt.Println("[ POSTGRES ] Error occured:", err)
+		fmt.Println("[ POSTGRES ] Error occurred:", err)
 		os.Exit(1)
 	}
 
@@ -136,7 +136,7 @@ func insertDB(db *sql.DB, id string, rawJson json.RawMessage) {
 
 		// other error
 		// no way to handle it correctly from application
-		fmt.Println("[ POSTGRES ] Error occured:", err)
+		fmt.Println("[ POSTGRES ] Error occurred:", err)
 		os.Exit(1)
 	}
 
@@ -148,7 +148,7 @@ func fetchDB(db *sql.DB, orderList *map[string]OrderModel) {
 	if err != nil {
 		// database error
 		// no way to handle it correctly from application
-		fmt.Println("[ POSTGRES ] Error occured:", err)
+		fmt.Println("[ POSTGRES ] Error occurred:", err)
 		os.Exit(1)
 	}
 	defer rows.Close()
@@ -160,7 +160,7 @@ func fetchDB(db *sql.DB, orderList *map[string]OrderModel) {
 		var rawJson json.RawMessage
 		err := rows.Scan(&id, &rawJson)
 		if err != nil {
-			fmt.Println("[ POSTGRES ] Error occured:", err)
+			fmt.Println("[ POSTGRES ] Error occurred:", err)
 			os.Exit(1)
 		}
 
@@ -170,7 +170,7 @@ func fetchDB(db *sql.DB, orderList *map[string]OrderModel) {
 			// error parsing json from database object
 			// literaly impossible to happen
 			// but I handle it anyway
-			fmt.Println(err)
+			fmt.Println("[ POSTGRES ] Invalid data from database:", err)
 			os.Exit(1)
 		}
 
@@ -207,7 +207,7 @@ func main() {
 	if err != nil {
 		// NATS connection error
 		// usually forgot to start NATS server
-		fmt.Println(err)
+		fmt.Println("[ NATS ] Error occurred:", err)
 		os.Exit(1)
 	}
 	defer nc.Close()
@@ -222,6 +222,9 @@ func main() {
 		if err != nil {
 			// error parsing json from NATS message
 			// usually means that NATS message is not in correct format
+			// or that the message is not json at all
+
+			// I ignore the message and continue
 			fmt.Println("[ NATS ] Error parsing json (garbage data in channel?)")
 			return
 		}
