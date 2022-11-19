@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>web interface</title>
+</head>
+<body>
+
+    <h1>Order get by ID</h1>
+    <input type="text" id="input">
+    <button id="button">Get order by ID</button>
+
+    <script>
+        document.getElementById("button").onclick = function() {
+            var id = document.getElementById("input").value;
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+            
+                    var json = JSON.parse(this.responseText);
+
+                    var table = document.createElement("table");
+                    table.style.border = "1px solid black";
+
+                    var tr = document.createElement("tr");
+                    var td = document.createElement("td");
+                    td.innerHTML = "order_uid";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    td.innerHTML = json.order_uid;
+                    tr.appendChild(td);
+                    table.appendChild(tr);
+
+                    tr = document.createElement("tr");
+                    td = document.createElement("td");
+                    td.innerHTML = "track_number";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    td.innerHTML = json.track_number;
+                    tr.appendChild(td);
+                    table.appendChild(tr);
+
+                    tr = document.createElement("tr");
+                    td = document.createElement("td");
+                    td.innerHTML = "entry";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    td.innerHTML = json.entry;
+                    tr.appendChild(td);
+                    table.appendChild(tr);
+
+                    // show delivery as subtable
+                    // {
+                    //     "name": "Test Testov",
+                    //     "phone": "+9720000000",
+                    //     "zip": "2639809",
+                    //     "city": "Kiryat Mozkin",
+                    //     "address": "Ploshad Mira 15",
+                    //     "region": "Kraiot",
+                    //     "email": "test@gmail.com"
+                    // }
+
+                    tr = document.createElement("tr");
+                    td = document.createElement("td");
+                    td.innerHTML = "delivery";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    
+                    var subtable = document.createElement("table");
+                    subtable.style.border = "1px solid black";
+                    var subtr = document.createElement("tr");
+                    var subtd = document.createElement("td");
+                    subtd.innerHTML = "name";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = json.delivery.name;
+                    subtr.appendChild(subtd);
+                    subtable.appendChild(subtr);
+
+                    subtr = document.createElement("tr");
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "phone";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = json.delivery.phone;
+                    subtr.appendChild(subtd);
+                    subtable.appendChild(subtr);
+
+                    subtr = document.createElement("tr");
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "zip";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = json.delivery.zip;
+                    subtr.appendChild(subtd);
+                    subtable.appendChild(subtr);
+
+                    subtr = document.createElement("tr");
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "city";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = json.delivery.city;
+                    subtr.appendChild(subtd);
+                    subtable.appendChild(subtr);
+
+                    subtr = document.createElement("tr");
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "address";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = json.delivery.address;
+                    subtr.appendChild(subtd);
+                    subtable.appendChild(subtr);
+
+                    subtr = document.createElement("tr");
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "region";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = json.delivery.region;
+                    subtr.appendChild(subtd);
+                    subtable.appendChild(subtr);
+                    
+                    subtr = document.createElement("tr");
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "email";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = json.delivery.email;
+                    subtr.appendChild(subtd);
+                    subtable.appendChild(subtr);
+
+                    td.appendChild(subtable);
+                    tr.appendChild(td);
+                    table.appendChild(tr);
+  
+                    // show payment as subtable
+                    // {
+                    //     "transaction": "b563feb7b2b84b6test",
+                    //     "request_id": "",
+                    //     "currency": "USD",
+                    //     "provider": "wbpay",
+                    //     "amount": 1817,
+                    //     "payment_dt": 1637907727,
+                    //     "bank": "alpha",
+                    //     "delivery_cost": 1500,
+                    //     "goods_total": 317,
+                    //     "custom_fee": 0
+                    // }
+
+                    tr = document.createElement("tr");
+                    td = document.createElement("td");
+                    td.innerHTML = "payment";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+
+                    subtable = document.createElement("table");
+                    subtable.style.border = "1px solid black";
+                    subtr = document.createElement("tr");
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "transaction";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = json.payment.transaction;
+                    subtr.appendChild(subtd);
+                    subtable.appendChild(subtr);
+
+                    subtr = document.createElement("tr");
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "request_id";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = json.payment.request_id;
+                    subtr.appendChild(subtd);
+                    subtable.appendChild(subtr);
+
+                    subtr = document.createElement("tr");
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "currency";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = json.payment.currency;
+                    subtr.appendChild(subtd);
+                    subtable.appendChild(subtr);
+
+                    subtr = document.createElement("tr");
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "provider";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = json.payment.provider;
+                    subtr.appendChild(subtd);
+                    subtable.appendChild(subtr);
+
+                    subtr = document.createElement("tr");
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "amount";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = json.payment.amount;
+                    subtr.appendChild(subtd);
+                    subtable.appendChild(subtr);
+                        
+                    subtr = document.createElement("tr");
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "payment_dt";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = json.payment.payment_dt;
+                    subtr.appendChild(subtd);
+                    subtable.appendChild(subtr);
+
+                    subtr = document.createElement("tr");
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "bank";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = json.payment.bank;
+                    subtr.appendChild(subtd);
+                    subtable.appendChild(subtr);
+                    
+                    subtr = document.createElement("tr");
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "delivery_cost";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = json.payment.delivery_cost;
+                    subtr.appendChild(subtd);
+                    subtable.appendChild(subtr);
+
+                    subtr = document.createElement("tr");
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "goods_total";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = json.payment.goods_total;
+                    subtr.appendChild(subtd);
+                    subtable.appendChild(subtr);
+
+                    subtr = document.createElement("tr");
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "custom_fee";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = json.payment.custom_fee;
+                    subtr.appendChild(subtd);
+                    subtable.appendChild(subtr);
+
+                    td.appendChild(subtable);
+                    tr.appendChild(td);
+                    table.appendChild(tr);
+
+                    //
+
+                    // show items as subtable
+                    //   "items": [
+                    //     {
+                    //       "chrt_id": 9934930,
+                    //       "track_number": "WBILMTESTTRACK",
+                    //       "price": 453,
+                    //       "rid": "ab4219087a764ae0btest",
+                    //       "name": "Mascaras",
+                    //       "sale": 30,
+                    //       "size": "0",
+                    //       "total_price": 317,
+                    //       "nm_id": 2389212,
+                    //       "brand": "Vivienne Sabo",
+                    //       "status": 202
+                    //     }
+                    //   ]
+
+                    tr = document.createElement("tr");
+                    td = document.createElement("td");
+                    td.innerHTML = "items";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    
+                    subtable = document.createElement("table");
+                    subtable.style.border = "1px solid black";
+                    subtr = document.createElement("tr");
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "chrt_id";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "track_number";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "price";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "rid";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "name";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "sale";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "size";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "total_price";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "nm_id";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "brand";
+                    subtr.appendChild(subtd);
+                    subtd = document.createElement("td");
+                    subtd.innerHTML = "status";
+                    subtr.appendChild(subtd);
+                    subtable.appendChild(subtr);
+
+                    for (var i = 0; i < json.items.length; i++) {
+                        subtr = document.createElement("tr");
+                        subtd = document.createElement("td");
+                        subtd.innerHTML = json.items[i].chrt_id;
+                        subtr.appendChild(subtd);
+                        subtd = document.createElement("td");
+                        subtd.innerHTML = json.items[i].track_number;
+                        subtr.appendChild(subtd);
+                        subtd = document.createElement("td");
+                        subtd.innerHTML = json.items[i].price;
+                        subtr.appendChild(subtd);
+                        subtd = document.createElement("td");
+                        subtd.innerHTML = json.items[i].rid;
+                        subtr.appendChild(subtd);
+                        subtd = document.createElement("td");
+                        subtd.innerHTML = json.items[i].name;
+                        subtr.appendChild(subtd);
+                        subtd = document.createElement("td");
+                        subtd.innerHTML = json.items[i].sale;
+                        subtr.appendChild(subtd);
+                        subtd = document.createElement("td");
+                        subtd.innerHTML = json.items[i].size;
+                        subtr.appendChild(subtd);
+                        subtd = document.createElement("td");
+                        subtd.innerHTML = json.items[i].total_price;
+                        subtr.appendChild(subtd);
+                        subtd = document.createElement("td");
+                        subtd.innerHTML = json.items[i].nm_id;
+                        subtr.appendChild(subtd);
+                        subtd = document.createElement("td");
+                        subtd.innerHTML = json.items[i].brand;
+                        subtr.appendChild(subtd);
+                        subtd = document.createElement("td");
+                        subtd.innerHTML = json.items[i].status;
+                        subtr.appendChild(subtd);
+                        subtable.appendChild(subtr);
+                    }
+
+                    td.appendChild(subtable);
+                    tr.appendChild(td);
+                    table.appendChild(tr);
+
+                    //
+
+                    tr = document.createElement("tr");
+                    td = document.createElement("td");
+                    td.innerHTML = "locale";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    td.innerHTML = json.locale;
+                    tr.appendChild(td);
+                    table.appendChild(tr);
+
+                    tr = document.createElement("tr");
+                    td = document.createElement("td");
+                    td.innerHTML = "internal_signature";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    td.innerHTML = json.internal_signature;
+                    tr.appendChild(td);
+                    table.appendChild(tr);
+
+                    tr = document.createElement("tr");
+                    td = document.createElement("td");
+                    td.innerHTML = "customer_id";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    td.innerHTML = json.customer_id;
+                    tr.appendChild(td);
+                    table.appendChild(tr);
+
+                    tr = document.createElement("tr");
+                    td = document.createElement("td");
+                    td.innerHTML = "delivery_service";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    td.innerHTML = json.delivery_service;
+                    tr.appendChild(td);
+                    table.appendChild(tr);
+
+                    tr = document.createElement("tr");
+                    td = document.createElement("td");
+                    td.innerHTML = "shardkey";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    td.innerHTML = json.shardkey;
+                    tr.appendChild(td);
+                    table.appendChild(tr);
+
+                    tr = document.createElement("tr");
+                    td = document.createElement("td");
+                    td.innerHTML = "sm_id";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    td.innerHTML = json.sm_id;
+                    tr.appendChild(td);
+                    table.appendChild(tr);
+
+                    tr = document.createElement("tr");
+                    td = document.createElement("td");
+                    td.innerHTML = "date_created";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    td.innerHTML = json.date_created;
+                    tr.appendChild(td);
+                    table.appendChild(tr);
+
+                    tr = document.createElement("tr");
+                    td = document.createElement("td");
+                    td.innerHTML = "oof_shard";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    td.innerHTML = json.oof_shard;
+                    tr.appendChild(td);
+                    table.appendChild(tr);
+
+                    document.getElementById("button").parentNode.insertBefore(table, document.getElementById("button").nextSibling);
+
+
+                } else if (this.readyState == 4 && this.status == 404) {
+                    var div = document.createElement("div");
+                    div.style.color = "red";
+                    div.innerHTML = id + ": Not found";
+                    document.getElementById("button").parentNode.insertBefore(div, document.getElementById("button").nextSibling);
+                }
+            };
+            xhttp.open("GET", "http://localhost:8080/orders/" + id, true);
+            xhttp.send();
+        };
+    </script>
+
+</body>
+</html>

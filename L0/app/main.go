@@ -2,11 +2,13 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
+	"github.com/nats-io/nats.go"
 )
 
 type DeliveryModel struct {
@@ -65,51 +67,117 @@ type OrderModel struct {
 
 // ///////////////////////////////////////////////
 
-func startHttpServer() {
+func startHttpServer(ordersCache *map[string]OrderModel) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-
+		http.ServeFile(w, r, "./html/index.html")
+		fmt.Println("[ HTTP ] Served index.html")
 	})
+
+	// handle get request in format /orders/{id}
+	http.HandleFunc("/orders/", func(w http.ResponseWriter, r *http.Request) {
+		id := r.URL.Path[len("/orders/"):]
+		order, ok := (*ordersCache)[id]
+		if !ok {
+			w.WriteHeader(http.StatusNotFound)
+			fmt.Println("[ HTTP ] Order not found with id", id)
+			return
+		}
+
+		json.NewEncoder(w).Encode(order)
+		fmt.Println("[ HTTP ] Served order with id", id)
+	})
+
+	// starts http server main loop
+	http.ListenAndServe(":8080", nil)
 }
 
 func connectDB() *sql.DB {
-	connStr := "postgres://lumina:2408mM305@localhost/wb?sslmode=disable"
+	connStr := "postgres://lumina:password@localhost/wb?sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		fmt.Println(err)
+		// error connecting to database
+		// usually means that the database is not running of credentials are wrong
+		fmt.Println("[ POSTGRES ] Error occured:", err)
 		os.Exit(1)
 	}
 
 	err = db.Ping()
 	if err != nil {
-		fmt.Println(err)
+		// error pinging database
+		// usually means that the database is not responding
+		fmt.Println("[ POSTGRES ] Error occured:", err)
 		os.Exit(1)
 	}
 
 	return db
 }
 
-func insertDB(db *sql.DB, order OrderModel) {
-	// Upload to postgres
+func insertDB(db *sql.DB, id string, rawJson json.RawMessage) {
+	_, err := db.Exec("INSERT INTO orders (id, data) VALUES ($1, $2)", id, rawJson)
+	if err != nil {
+		// error inserting to database
+		// usually is caused by dudplicate id
+		if pgerr, ok := err.(*pq.Error); ok {
+			// duplicate id handling
+			if pgerr.Code == "23505" {
+				// handle duplicate insert
+				// I update the duplicate row but duplicates can also be ignored or handled in some other way
+				_, err := db.Exec("UPDATE orders SET data = $1 WHERE id = $2", rawJson, id)
+				if err != nil {
+					// error while updating duplicate row
+					// is database dead?
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				fmt.Println("[ POSTGRES ] Updated at index", id)
+				return
+			}
+		}
+
+		// other error
+		// no way to handle it correctly from application
+		fmt.Println("[ POSTGRES ] Error occured:", err)
+		os.Exit(1)
+	}
+
+	fmt.Println("[ POSTGRES ] Inserted at index", id)
 }
 
-func fetchDB(db *sql.DB, orderList *[]OrderModel) {
+func fetchDB(db *sql.DB, orderList *map[string]OrderModel) {
 	rows, err := db.Query("SELECT * FROM orders")
 	if err != nil {
-		fmt.Println(err)
+		// database error
+		// no way to handle it correctly from application
+		fmt.Println("[ POSTGRES ] Error occured:", err)
 		os.Exit(1)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var order OrderModel
-		// err := rows.Scan(&order)
-		// if err != nil {
-		// 	fmt.Println(err)
-		// 	os.Exit(1)
-		// }
 
-		*orderList = append(*orderList, order)
+		var id string
+		var rawJson json.RawMessage
+		err := rows.Scan(&id, &rawJson)
+		if err != nil {
+			fmt.Println("[ POSTGRES ] Error occured:", err)
+			os.Exit(1)
+		}
+
+		// Parse json to struct
+		err = json.Unmarshal(rawJson, &order)
+		if err != nil {
+			// error parsing json from database object
+			// literaly impossible to happen
+			// but I handle it anyway
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		(*orderList)[id] = order
 	}
+
+	fmt.Println("[ POSTGRES ] Fetched from DB")
 }
 
 func main() {
@@ -117,79 +185,57 @@ func main() {
 	// Plan:
 	// 1. Connect to postgres
 	// 2. Restore cache from postgres
-	// 3. Host http webserver or web interface
-	// 4. Tell webserver to serve id requests
-	// 5. Connect to NATS
-	// 6. Subscribe to NATS
-	// 7. Handle NATS messages along with http requests
+	// 3. Connect to NATS
+	// 4. Subscribe to NATS channel
+	// 5. Handle NATS messages
+	// 6. Host http webserver for web interface
+	// 7. Tell webserver to serve id requests
+	// 8. Sit in http server main loop until cthulhu engulfs the world or Ctrl+C is pressed
 
-	var ordersCache []OrderModel
+	// Order model cache array
+	var ordersCache = make(map[string]OrderModel)
 
+	// Connect to db
 	db := connectDB()
 	defer db.Close()
 
+	// Restore cache from db
 	fetchDB(db, &ordersCache)
 
-	fmt.Println(ordersCache)
+	// Establish NATS connection
+	nc, err := nats.Connect(nats.DefaultURL)
+	if err != nil {
+		// NATS connection error
+		// usually forgot to start NATS server
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	defer nc.Close()
 
-	//startHttpServer()
+	// Subscribe to NATS channel
+	channelName := "orders"
+	nc.Subscribe(channelName, func(m *nats.Msg) {
+		var order OrderModel
 
-	/////////////////////////////////////////////////
-	// NATS connection example //
-	/////////////////////////////////////////////////
+		// Parse json to struct
+		err = json.Unmarshal(m.Data, &order)
+		if err != nil {
+			// error parsing json from NATS message
+			// usually means that NATS message is not in correct format
+			fmt.Println("[ NATS ] Error parsing json (garbage data in channel?)")
+			return
+		}
+		fmt.Println("[ NATS ] Received order with id", order.OrderUid)
 
-	// Nats streaming connection
-	// nc, err := nats.Connect(nats.DefaultURL)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	os.Exit(1)
-	// }
-	// defer nc.Close()
+		// Insert into or update cache
+		ordersCache[order.OrderUid] = order
 
-	// Subscribe to subject
-	// _, err = nc.Subscribe("channel", func(msg *nats.Msg) {
-	// 	fmt.Printf("Received a message: %s", string(msg.Data))
-	// })
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	os.Exit(1)
-	// }
+		// Insert into or update on db
+		insertDB(db, order.OrderUid, m.Data)
+	})
 
-	// Publish message
-	// err = nc.Publish("channel", []byte("Hello World"))
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	os.Exit(1)
-	// }
-	// nc.Flush()
-
-	/////////////////////////////////////////////////
-	// JSON parsing example //
-	/////////////////////////////////////////////////
-
-	// filename := "./model.json"
-	// plan, error := os.ReadFile(filename)
-	// if error != nil {
-	// 	fmt.Println(error)
-	// }
-
-	// var data OrderModel
-	// err = json.Unmarshal(plan, &data)
-	// if err != nil {
-	// 	fmt.Println("error:", err)
-	// 	os.Exit(1)
-	// }
-
-	// fmt.Println(data)
-
-	/////////////////////////////////////////////////
-	// HTTP server example //
-	/////////////////////////////////////////////////
-
-	// http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-	// 	fmt.Fprintf(w, "Hello World")
-	// })
-
-	// http.ListenAndServe(":8080", nil)
+	// Start http server
+	// main loop is provided by http server
+	startHttpServer(&ordersCache)
 
 }

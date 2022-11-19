@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"time"
 
@@ -18,24 +19,30 @@ func main() {
 	}
 	defer nc.Close()
 
-	// read model.json file
-	filename := "./model.json"
-	plan, error := os.ReadFile(filename)
-	if error != nil {
-		fmt.Println(error)
+	// file content buffer
+	var fileContent [3][]byte
+
+	// Some garbage
+	fileContent[0] = []byte("Hello World!")
+
+	fileContent[1], err = ioutil.ReadFile("json/model.json")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fileContent[2], err = ioutil.ReadFile("json/order1.json")
+	if err != nil {
+		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	// while true, publish message
 	for {
-		err = nc.Publish("channel", plan)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		nc.Flush()
-		fmt.Println("Message published")
+		index := time.Now().UnixNano() % 3
 
+		nc.Publish("orders", fileContent[index])
+		nc.Flush()
+
+		// wait 1 second
 		time.Sleep(1 * time.Second)
 	}
 
