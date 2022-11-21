@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"time"
 
@@ -20,7 +21,7 @@ func main() {
 	defer nc.Close()
 
 	// file content buffer
-	var fileContent [3][]byte
+	var fileContent [5][]byte
 
 	// Some garbage
 	fileContent[0] = []byte("Hello World!")
@@ -35,15 +36,25 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	fileContent[3], err = ioutil.ReadFile("json/order2.json")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fileContent[4], err = ioutil.ReadFile("json/order3.json")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	rand.Seed(time.Now().UnixNano())
 
 	for {
-		index := time.Now().UnixNano() % 3
+		// generate random index using math/rand
+		index := rand.Intn(5)
 
 		nc.Publish("orders", fileContent[index])
 		nc.Flush()
-
-		// wait 1 second
-		time.Sleep(1 * time.Second)
 	}
 
 }

@@ -225,7 +225,7 @@ func main() {
 			// or that the message is not json at all
 
 			// I ignore the message and continue
-			fmt.Println("[ NATS ] Error parsing json (garbage data in channel?)")
+			fmt.Println("[ NATS ] Error parsing json (garbage data in channel?):", err)
 			return
 		}
 		fmt.Println("[ NATS ] Received order with id", order.OrderUid)
