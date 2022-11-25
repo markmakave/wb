@@ -1,0 +1,19 @@
+1. Using string builder: O(l1 + l2 + l3...) where ln is n'th string length
+2. 
+3. RWMutex has two separate locks for read and write. So, if there are multiple readers, they can read concurrently. But, if there is a writer, it will block all readers and writers.
+4. Buffered channel is a channel with a buffer. It can hold a fixed number of elements. If the channel is full, the sender will block until the receiver receives an element. If the channel is empty, the receiver will block until the sender sends an element.
+   Unbuffered channel is a channel with size 0. It can hold only one element. If the channel is full, the sender will block until the receiver receives an element. If the channel is empty, the receiver will block until the sender sends an element.
+5. 0
+6. eh... Nope.
+7. ???
+8. Make is used only for slice, map and channel. It creates a slice, map or channel of the given type, length and capacity. It is used to initialize these data structures. It is not used to initialize structs.
+   New is used to initialize structs. It allocates memory for the struct and returns a pointer to it.
+9. 
+10. 1
+    1
+11. deadlock (reason: noCopy)
+12. 0 (reason: local variable)
+13. 
+14.
+15.
+16.
