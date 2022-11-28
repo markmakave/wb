@@ -6,7 +6,7 @@ import "fmt"
 	Write to map using goroutines (concurrency).
 
 	- Synchronization is done using channel.
-	- Map writing is done in critical section created using channel.
+	- Map writing is done in critical section created using mutex-like channel.
 */
 
 func main() {

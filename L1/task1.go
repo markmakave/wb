@@ -29,7 +29,6 @@ type Action struct {
 
 // Try using Human methods and fields on Action
 func main() {
-
 	a := Action{Human{Age: 10, Name: "John"}}
 
 	a.Birthsday()
