@@ -1,15 +1,5 @@
 package main
 
-// chain of responsibility pattern
-// chain of responsibility pattern is a behavioral design pattern that lets you pass requests along a chain of handlers. Upon receiving a request, each handler decides either to process the request or to pass it to the next handler in the chain.
-// The chain of responsibility pattern is a way to decouple senders and receivers of requests based on type of request. This pattern is essentially a linear search for an object that can handle a particular request.
-// The chain of responsibility pattern lets you:
-// - pass requests along a chain of handlers
-// - upon receiving a request, each handler decides either to process the request or to pass it to the next handler in the chain
-// - optionally, each handler may decide to process the request and stop passing it further along the chain
-// - the pattern lets you modify the chain of handlers at runtime
-// - the pattern lets you decouple senders and receivers of requests based on type of request
-
 import (
 	"fmt"
 )

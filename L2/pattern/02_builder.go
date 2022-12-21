@@ -1,9 +1,5 @@
 package main
 
-// builder pattern
-// builder pattern is a creational design pattern that lets you construct complex objects step by step. The pattern allows you to produce different types and representations of an object using the same construction code.
-// The Builder pattern is a good choice when designing classes whose constructors or static factories would have more than a handful of parameters.
-
 import (
 	"fmt"
 )

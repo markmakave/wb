@@ -1,16 +1,5 @@
 package main
 
-// command pattern
-// command pattern is a behavioral design pattern in which an object is used to encapsulate all information needed to perform an action or trigger an event at a later time.
-// This information includes the method name, the object that owns the method and values for the method parameters.
-// The command pattern lets you:
-// - parameterize objects by an action to perform
-// - specify, queue, and execute requests at different times
-// - support undoable operations
-// - support logging of requests
-// - structure a system around high-level operations built on primitives operations
-// - decouple objects invoking the operation from the objects that know how to perform it
-
 import (
 	"fmt"
 )

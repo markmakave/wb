@@ -1,10 +1,5 @@
 package main
 
-// visitor pattern
-// visitor pattern is a behavioral design pattern that lets you separate algorithms from the objects on which they operate.
-// The Visitor pattern lets you add new operations to existing object structures without modifying these structures. It is one way to follow the open/closed principle.
-// The Visitor pattern is often used when you have to perform the same operation on all elements of a complex object structure. Such an operation might be rendering an object structure to a screen or printing it.
-
 import (
 	"fmt"
 )

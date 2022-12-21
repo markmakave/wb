@@ -1,11 +1,5 @@
 package main
 
-// factory method pattern
-// factory method pattern is a creational design pattern that provides an interface for creating objects in a superclass, but allows subclasses to alter the type of objects that will be created.
-// The factory method pattern solves problems like:
-// - How can an object be created so that subclasses can redefine which class to instantiate?
-// - How can a class defer instantiation to subclasses?
-
 import (
 	"fmt"
 )
